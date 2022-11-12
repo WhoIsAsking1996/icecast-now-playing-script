@@ -1,4 +1,4 @@
-const stream_mount = "/KCMR/IP";
+const stream_mount = "stream";
 const status_url = "URICECASTSERVER/status-json.xsl";
 const nowplaying = document.getElementById('streamtitle');
 
