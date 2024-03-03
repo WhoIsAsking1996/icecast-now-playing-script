@@ -2,28 +2,23 @@ const stream_mount = "stream";
 const status_url = "URICECASTSERVER/status-json.xsl";
 const nowplaying = document.getElementById('streamtitle');
 
-function poll() {
-    fetch(status_url)
-    .then(data => data.json())
-    .then(j_data => {
-        console.log(j_data.source);
-        console.log(j_data);
-        if (Array.isArray(j_data.icestats.source) == true) {
-            //console.log(j_data.icestats.source[0].title);
-            j_data.icestats.source.forEach(src => {
-                console.log(src);
-                if (src.listenurl.includes(stream_mount) == true) {
-                    nowplaying.innerText = src.title;
-                }
-            });
-        } else {
-            if (j_data.icestats.source.listenurl.includes(stream_mount) == true) {
-                nowplaying.innerText = j_data.icestats.source.title;
-            }
+async function poll() {
+    try {
+        const response = await fetch(status_url);
+        if (!response.ok) {
+            throw new Error('Failed to fetch status');
         }
-    });
+        const j_data = await response.json();
+        const source = Array.isArray(j_data.icestats.source) ? j_data.icestats.source : [j_data.icestats.source];
+
+        const playingSource = source.find(src => src.listenurl.includes(stream_mount));
+        if (playingSource) {
+            nowplaying.innerText = playingSource.title;
+        }
+    } catch (error) {
+        console.error('Error fetching status:', error);
+    }
 }
 
 poll();
-
 setInterval(poll, 5000);
